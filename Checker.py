@@ -80,53 +80,53 @@ async def check(token):
         t = token
     while True:
         try:
-        req = requests.get("https://discord.com/api/v9/users/@me/library", headers=headers(t))
-        if req.status_code == 200:
-            verify = []
-            req = requests.get("https://discord.com/api/v9/users/@me", headers=headers(t))
-            req = req.json()
-            phone = req["phone"]
-            email = req["email"]
-            verified = req["verified"]
-            username = req["username"]
-            discriminator = req["discriminator"]
-            id = req["id"]
-            if verified == True:
-                verify.append("email")
-            elif phone != None:
-                verify.append("phone")
-            while True:
-                guilds = requests.get("https://discord.com/api/v9/users/@me/guilds", headers=headers(t)).json()
-                if not "You are being rate limited." in str(guilds):
-                    break
-                await asyncio.sleep(1)
-            if "email" in verify and "phone" in verify:
-                verify = "Full Verify"
-            else:
-                if "email" in verify:
-                    verify = "Email Verify"
-                elif "phone" in verify:
-                    verify = "Phone Verify"
+            req = requests.get("https://discord.com/api/v9/users/@me/library", headers=headers(t))
+            if req.status_code == 200:
+                verify = []
+                req = requests.get("https://discord.com/api/v9/users/@me", headers=headers(t))
+                req = req.json()
+                phone = req["phone"]
+                email = req["email"]
+                verified = req["verified"]
+                username = req["username"]
+                discriminator = req["discriminator"]
+                id = req["id"]
+                if verified == True:
+                    verify.append("email")
+                elif phone != None:
+                    verify.append("phone")
+                while True:
+                    guilds = requests.get("https://discord.com/api/v9/users/@me/guilds", headers=headers(t)).json()
+                    if not "You are being rate limited." in str(guilds):
+                        break
+                    await asyncio.sleep(1)
+                if "email" in verify and "phone" in verify:
+                    verify = "Full Verify"
                 else:
-                    verify = "Not Verify"
-            cprint(f"{t} - {verify} TokenㅣGuild Count: {len(guilds)}ㅣUsername: {username}#{discriminator}ㅣUserID: {id}ㅣEmail: {email}ㅣPhone: {phone}").green()
-            valid.append(token)
-            set_title()
-        else:
-            if req.status_code == 401:
-                cprint(f"{t} - INVALID").red()
-                invalid.append(token)
-            elif req.status_code == 403:
-                cprint(f"{t} - LOCKED").red()
-                invalid.append(token)
+                    if "email" in verify:
+                        verify = "Email Verify"
+                    elif "phone" in verify:
+                        verify = "Phone Verify"
+                    else:
+                        verify = "Not Verify"
+                cprint(f"{t} - {verify} TokenㅣGuild Count: {len(guilds)}ㅣUsername: {username}#{discriminator}ㅣUserID: {id}ㅣEmail: {email}ㅣPhone: {phone}").green()
+                valid.append(token)
+                set_title()
             else:
-                message = req.json()["message"]
-                cprint(f"{t} - {message}").yellow()
-                not_valid_and_not_invalid.append(token)
-        set_title()
-        break
-    except:
-        pass
+                if req.status_code == 401:
+                    cprint(f"{t} - INVALID").red()
+                    invalid.append(token)
+                elif req.status_code == 403:
+                    cprint(f"{t} - LOCKED").red()
+                    invalid.append(token)
+                else:
+                    message = req.json()["message"]
+                    cprint(f"{t} - {message}").yellow()
+                    not_valid_and_not_invalid.append(token)
+            set_title()
+            break
+        except:
+            pass
 
 tokens = open("tokens/tokens.txt", "r").read().split("\n")
 
@@ -135,7 +135,7 @@ for token in tokens:
     time.sleep(config["delay"])
 
 while True:
-    if len(invalid) + len(valid) + == len(tokens):
+    if len(invalid) + len(valid) == len(tokens):
         set_title()
         if not_valid_and_not_invalid != []:
             print(f"There was an error Please try again in a few moments.")
