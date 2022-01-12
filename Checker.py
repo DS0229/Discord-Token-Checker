@@ -18,6 +18,7 @@ except:
 
 valid = []
 invalid = []
+not_valid_and_not_invalid = []
 
 try:
     config = json.loads(open("config.json", "r", encoding="utf-8").read())
@@ -42,7 +43,7 @@ Discord Server: discord.gg/fastdm
 """)
 
 def set_title():
-    os.system(f"title Token Checker by. 김명우#0001ㅣVALID: {len(valid)}, INVALID: {len(invalid)}, SAME TOKENS: {len(same_tokens)}")
+    os.system(f"title Token Checker by. 김명우#0001ㅣVALID: {len(valid)}, INVALID: {len(invalid)}")
 
 def randstr(len_):
     rstr = ""
