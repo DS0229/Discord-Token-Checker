@@ -1,4 +1,4 @@
-import os, json, threading, time, random
+import os, json, threading, time, random, asyncio
 from ColorPrint import colorprint
 
 os.system("mode con:cols=220 lines=30")
@@ -72,7 +72,7 @@ def headers(token):
         "x-super-properties": "eyJvcyI6IldpbmRvd3MiLCJicm93c2VyIjoiRGlzY29yZCBDbGllbnQiLCJyZWxlYXNlX2NoYW5uZWwiOiJjYW5hcnkiLCJjbGllbnRfdmVyc2lvbiI6IjEuMC42MDAiLCJvc192ZXJzaW9uIjoiMTAuMC4yMjAwMCIsIm9zX2FyY2giOiJ4NjQiLCJzeXN0ZW1fbG9jYWxlIjoic2siLCJjbGllbnRfYnVpbGRfbnVtYmVyIjo5NTM1MywiY2xpZW50X2V2ZW50X3NvdXJjZSI6bnVsbH0="
     }
 
-async def check(token):
+def check(token):
     global valid
     global invalid
     try:
@@ -100,7 +100,7 @@ async def check(token):
                     guilds = requests.get("https://discord.com/api/v9/users/@me/guilds", headers=headers(t)).json()
                     if not "You are being rate limited." in str(guilds):
                         break
-                    await asyncio.sleep(1)
+                    time.sleep(1)
                 if "email" in verify and "phone" in verify:
                     verify = "Full Verify"
                 else:
@@ -131,38 +131,42 @@ async def check(token):
 
 tokens = open("tokens/tokens.txt", "r").read().split("\n")
 
-for token in tokens:
-    threading.Thread(target=asyncio.run, args=(check(token),)).start()
-    time.sleep(config["delay"])
 
-while True:
-    if len(invalid) + len(valid) == len(tokens):
-        set_title()
-        if not_valid_and_not_invalid != []:
-            print(f"There was an error Please try again in a few moments.")
+async def main():
+    for token in tokens:
+        threading.Thread(target=check, args=(token,)).start()
+        await asyncio.sleep(config["delay"])
+    while True:
+        if len(invalid) + len(valid) == len(tokens):
+            set_title()
+            if not_valid_and_not_invalid != []:
+                print(f"There was an error Please try again in a few moments.")
+                os.system("pause")
+                break
+            if config["save_email_password"] != True:
+                vvalid = []
+                iinvalid = []
+                ssame_tokens = []
+                for token in valid:
+                    try:
+                        vvalid.append(token.split(":")[2])
+                    except:
+                        vvalid.append(token)
+                for token in invalid:
+                    try:
+                        iinvalid.append(token.split(":")[2])
+                    except:
+                        iinvalid.append(token)
+            else:
+                vvalid = valid
+                iinvalid = invalid
+            open("tokens/valid.txt", "w").write("\n".join(vvalid))
+            open("tokens/invalid.txt", "w").write("\n".join(iinvalid))
+
+            print(f"\nVALID: {len(valid)}ㅣINVALID: {len(invalid)}\n")
+
             os.system("pause")
             break
-        if config["save_email_password"] != True:
-            vvalid = []
-            iinvalid = []
-            ssame_tokens = []
-            for token in valid:
-                try:
-                    vvalid.append(token.split(":")[0])
-                except:
-                    vvalid.append(token)
-            for token in invalid:
-                try:
-                    iinvalid.append(token.split(":")[0])
-                except:
-                    iinvalid.append(token)
-        else:
-            vvalid = valid
-            iinvalid = invalid
-        open("tokens/valid.txt", "w").write("\n".join(valid))
-        open("tokens/invalid.txt", "w").write("\n".join(invalid))
+        await asyncio.sleep(1)
 
-        print(f"\nVALID: {len(valid)}ㅣINVALID: {len(invalid)}\n")
-
-        os.system("pause")
-        break
+asyncio.run(main())
